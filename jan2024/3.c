@@ -10,6 +10,8 @@
 #define QUEUE_KEY 10201
 #define BUF 100
 
+//Uradio sam ga tako da deca procesi u svakoj iteraciji ispisuju min i max koji su primili od roditelja
+
 struct msgbuf {
     long tip;
     char text[100];
@@ -42,24 +44,24 @@ int main()
         while(1){
             if(msgrcv(msgid, &recMsg, BUF, 1, 0) != -1){
                     printf("A1 je primio %s\n", recMsg.text);
+
+                    strcpy(pom, recMsg.text);
+                    int i = 0;
+                    tok = strtok(pom, " ");
+                    while(tok!=NULL){
+                        if(i == 2)
+                            indeks = atoi(tok);
+                        tok = strtok(NULL, " ");
+                        ++i;
+                    }
+                    if(indeks > max)
+                        max = indeks;
+
+                    if(indeks < min)
+                        min = indeks;
             }
             else
-                printf("A1 nije primio\n");
-
-            strcpy(pom, recMsg.text);
-            int i = 0;
-            tok = strtok(pom, " ");
-            while(tok!=NULL){
-                if(i == 2)
-                    indeks = atoi(tok);
-                tok = strtok(NULL, " ");
-                ++i;
-            }
-            if(indeks > max)
-                max = indeks;
-
-            if(indeks < min)
-                min = indeks;
+                break;
             printf("A1 -----\n");
             printf("Najveci indeks: %d ; Najmanji indeks je %d\n", max, min);
 
@@ -80,27 +82,30 @@ int main()
         while(1){
             if(msgrcv(msgid, &recMsg, BUF, 2, 0) != -1){
                 printf("A2 je primio %s\n", recMsg.text);
+
+                strcpy(pom, recMsg.text);
+                int i = 0;
+                tok = strtok(pom, " ");
+                while(tok!=NULL){
+                    if(i == 2)
+                        indeks = atoi(tok);
+                    tok = strtok(NULL, " ");
+                    ++i;
+                }
+                if(indeks > max)
+                    max = indeks;
+
+                if(indeks < min)
+                    min = indeks;
             }
             else
-                printf("A2 nije primio\n");
-
-            strcpy(pom, recMsg.text);
-            int i = 0;
-            tok = strtok(pom, " ");
-            while(tok!=NULL){
-                if(i == 2)
-                    indeks = atoi(tok);
-                tok = strtok(NULL, " ");
-                ++i;
-            }
-            if(indeks > max)
-                max = indeks;
-
-            if(indeks < min)
-                min = indeks;
+                break;
             printf("A2 -----\n");
             printf("Najveci indeks: %d ; Najmanji indeks je %d\n", max, min);
+
+
         }
+
 
         return 0;
 
@@ -109,11 +114,9 @@ int main()
     f = fopen("prijava.txt", "r");
     if(!f)
         exit(1);
-    printf("Citanje iz fajla pocinje\n");
-    sleep(2);
+
     while(fgets(linija, BUF, f))
     {
-        printf("----------------\n");
         printf("%s \n", linija);
         strcpy(zaDeljenje, linija);
         int i = 0;
@@ -143,7 +146,6 @@ int main()
     wait(0);
     wait(0);
     printf("KRAJ\n");
-
     msgctl(msgid, IPC_RMID, NULL);
     return 0;
 
